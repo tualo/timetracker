@@ -123,18 +123,26 @@ Ext.define('Tualo.timetracker.lazy.Panel', {
                     items: [
                         {
                             xtype: 'timefield',
+                            name: 'range_start',
                             bind: {
                                 value: "{range_start}",
                                 disabled: "{!canEdit}"
+                            },
+                            listeners: {
+                                change: 'onRangeChange'
                             },
                             flex: 1
                         }, {
                             xtype: 'splitter'
                         }, {
                             xtype: 'timefield',
+                            name: 'range_stop',
                             bind: {
                                 value: "{range_stop}",
                                 disabled: "{!canEdit}"
+                            },
+                            listeners: {
+                                change: 'onRangeChange'
                             },
                             flex: 1
                         }
@@ -159,7 +167,7 @@ Ext.define('Tualo.timetracker.lazy.Panel', {
                     xtype: 'timefield',
                     name: 'in',
                     minValue: '00:00',
-                    maxValue: '08:00',
+                    maxValue: '23:59',
                     increment: 15,
                     anchor: '100%',
                     bind: {
