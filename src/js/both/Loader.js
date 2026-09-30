@@ -5,3 +5,4 @@ Ext.define('Tualo.Timetracker.Loader', {
         Ext.Loader.setPath('Tualo.timetracker.lazy', './jstimetracker');
     }
 });
+Ext.Loader.setPath('Tualo.timetracker.lazy', './jstimetracker');

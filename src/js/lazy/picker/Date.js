@@ -282,6 +282,10 @@ Ext.define('Tualo.timetracker.lazy.picker.Date', {
 
     isDatePicker: true,
 
+    config: {
+        store: null
+    },
+
     /**
      * @cfg alignOnScroll
      * @inheritdoc
@@ -428,17 +432,18 @@ Ext.define('Tualo.timetracker.lazy.picker.Date', {
         me.value = me.value ? clearTime(me.value, true) : clearTime(me.defaultValue);
 
         me.initDisabledDays();
+    },
 
-        //if (me.storeType) {
-        me.store = Ext.create('Tualo.DataSets.store.View_staff_time_mat_entry', {
-            autoLoad: false,
-            pageSize: 100
-        });
-        me.store.on('load', me.onStoreLoaded, me);
-
-        //}
-
-
+    updateStore: function (store, oldStore) {
+        if (oldStore) {
+            oldStore.un('load', this.onStoreLoaded, this);
+        }
+        if (store) {
+            store.on('load', this.onStoreLoaded, this);
+            if (this.rendered && this.activeDate) {
+                this.fullUpdate(this.activeDate);
+            }
+        }
     },
 
     // Keep the tree structure correct for Ext.form.field.Picker input fields
@@ -1512,7 +1517,9 @@ Ext.define('Tualo.timetracker.lazy.picker.Date', {
 
         me.monthBtn.setText(Ext.Date.format(date, me.monthYearFormat));
 
-        me.updateStore(startDate, stopDate);
+        if (me.getStore()) {
+            me.loadDateRange(startDate, stopDate);
+        }
     },
 
     onStoreLoaded: function (store, records, successful, operation, eOpts) {
@@ -1568,7 +1575,7 @@ Ext.define('Tualo.timetracker.lazy.picker.Date', {
 
             let useDate = new Date(current.getFullYear(), current.getMonth(), current.getDate() + 1);
 
-            let fr = me.store.findRecord('task_day', useDate, 0, false, false, true);
+            let fr = store.findRecord('task_date', useDate, 0, false, false, true);
             if (fr) {
                 textNodes[i].style.backgroundColor = 'rgba(79, 210, 52, 0.38)';
                 textNodes[i].style.fontWeight = 400;
@@ -1584,9 +1591,9 @@ Ext.define('Tualo.timetracker.lazy.picker.Date', {
 
     },
 
-    updateStore: function (startdate, stopdate) {
-        var me = this;
-        let filters = me.store.getFilters(); // an Ext.util.FilterCollection
+    loadDateRange: function (startdate, stopdate) {
+        var store = this.getStore();
+        let filters = store.getFilters(); // an Ext.util.FilterCollection
         filters.add([{
             'id': 'task_dayx',
             property: 'task_day',
@@ -1598,8 +1605,8 @@ Ext.define('Tualo.timetracker.lazy.picker.Date', {
             'operator': 'lt',
             value: stopdate
         }]);
-        me.store.setFilters(filters);
-        me.store.load();
+        store.setFilters(filters);
+        store.load();
     },
 
     /**
@@ -1630,6 +1637,8 @@ Ext.define('Tualo.timetracker.lazy.picker.Date', {
 
     doDestroy: function () {
         var me = this;
+
+        me.setStore(null);
 
         if (me.rendered) {
             Ext.destroy(

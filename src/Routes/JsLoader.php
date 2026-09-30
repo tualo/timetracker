@@ -23,6 +23,6 @@ class JsLoader extends \Tualo\Office\Basic\RouteWrapper
                 ['js'],
                 ['application/javascript']
             );
-        }, ['get'], false);
+        }, ['get'], true, [], self::scope());
     }
 }

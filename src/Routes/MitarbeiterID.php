@@ -11,7 +11,7 @@ class MitarbeiterID extends \Tualo\Office\Basic\RouteWrapper
 {
     public static function scope(): string
     {
-        return 'timetracker';
+        return 'basic';
     }
     public static function register()
     {
@@ -20,8 +20,15 @@ class MitarbeiterID extends \Tualo\Office\Basic\RouteWrapper
             App::result('success', false);
             try {
                 $db = App::get('session')->getDB();
-                App::result('id',  $db->single('select id from mitarbeiter where user_login=getSessionUser()', [], 'id'));
-                App::result('success', true);
+                $id = $db->singleValue('select id from mitarbeiter where user_login=getSessionUser()', [], 'id');
+                if ($id === false) {
+                    $id = $db->singleValue('select id from mitarbeiter_ersatz where user_login=getSessionUser()', [], 'id');
+                }
+
+                if ($id) {
+                    App::result('id',  $id);
+                    App::result('success', true);
+                }
             } catch (\Exception $e) {
                 App::result('success', false);
                 App::result('msg', $e->getMessage());

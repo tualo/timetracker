@@ -13,9 +13,9 @@ Ext.define('Tualo.routes.timetracker.Input', {
     handler: {
         action: function () {
 
-            Ext.getApplication().addView('Tualo.Timetracker.lazy.TimePanel', {
-                type: type,
-                reportnumber: reportnumber
+            Ext.getApplication().addView('Tualo.timetracker.lazy.Panel', {
+                // type: type,
+                // reportnumber: reportnumber
             });
 
         },

@@ -16,6 +16,12 @@ Ext.define('Tualo.timetracker.lazy.Panel', {
     viewModel: {
         type: 'timetracker'
     },
+    listeners: {
+        afterrender: 'onAfterRender'
+    },
+    bind: {
+        disabled: "{disabled}"
+    },
     getWindowTitle: function () { return "Zeiterfassung" },
     tools: [
         {
@@ -70,18 +76,22 @@ Ext.define('Tualo.timetracker.lazy.Panel', {
                 {
                     fieldLabel: "Mitarbeiter",
                     bind: {
-                        value: "{staff_link}",
-                        disabled: "{!canEdit}"
+                        value: "{record.mitarbeiter_id}",
+                        disabled: "{!canEdit}",
+                        store: '{mitarbeiter}'
                     },
-                    xtype: "combobox_staff_urno"
+                    xtype: "combobox_mitarbeiter_id"
                 },
                 {
                     xtype: 'timetracker_datepicker',
+                    bind: {
+                        store: '{kalender}'
+                    },
                     width: 350,
                     style: {
                         "marginTop": "8px",
                     },
-                    rowspan: 5,
+                    rowspan: 6,
                     listeners: {
                         select: function () {
                             console.log('select', arguments);
@@ -92,41 +102,50 @@ Ext.define('Tualo.timetracker.lazy.Panel', {
                 {
                     fieldLabel: "Job",
                     bind: {
-                        value: "{job_link}",
-                        disabled: "{!canEdit}"
+                        value: "{record.job_id}",
+                        disabled: "{!canEdit}",
+                        store: '{tualo_job}'
                     },
-                    xtype: "combobox_tualo_job_id"
+                    xtype: "combobox_tualo_job_id",
+
                 },
-                /*{
-                    fieldLabel: "Leistungsart",
-                    bind:{
-                        value: "{tos_link}",
-                        disabled: "{!canEdit}"
-                    },
-                    minChars: 2,
-                    xtype: "combobox_artikelgruppen_gruppen_id_kurz"
-                },*/
                 {
                     fieldLabel: "Leistungsart-ZE",
                     bind: {
-                        value: "{tos_link}",
+                        value: "{record.gruppen_id}",
                         disabled: "{!canEdit}"
                     },
                     minChars: 2,
                     xtype: "combobox_view_artikelgruppen_ze_gruppen_id_ze"
                 },
+
+                {
+                    fieldLabel: "Tag",
+                    xtype: 'datefield',
+                    name: 'task_date',
+                    anchor: '100%',
+                    bind: {
+                        value: "{record.task_date}",
+                        disabled: "{!canEdit}"
+                    },
+                    listeners: {
+                        change: 'onTaskDateChange'
+                    }
+                },
                 {
                     xtype: 'fieldcontainer',
                     fieldLabel: 'Zeitraum',
                     labelWidth: 100,
+                    bind: {
+                        disabled: "{!canEdit}"
+                    },
                     layout: 'hbox',
                     items: [
                         {
                             xtype: 'timefield',
                             name: 'range_start',
                             bind: {
-                                value: "{range_start}",
-                                disabled: "{!canEdit}"
+                                value: "{record.task_start}",
                             },
                             listeners: {
                                 change: 'onRangeChange'
@@ -138,8 +157,7 @@ Ext.define('Tualo.timetracker.lazy.Panel', {
                             xtype: 'timefield',
                             name: 'range_stop',
                             bind: {
-                                value: "{range_stop}",
-                                disabled: "{!canEdit}"
+                                value: "{record.task_end}",
                             },
                             listeners: {
                                 change: 'onRangeChange'
@@ -148,20 +166,6 @@ Ext.define('Tualo.timetracker.lazy.Panel', {
                         }
                     ]
                 },
-                /*
-                {
-                    fieldLabel: "Zeit",
-                    maxValue: 12,
-                    decimalSeparator: ',',
-                    decimalPrecision: 2,
-                    minValue: 0,
-                    bind:{
-                        value: "{hours}",
-                        disabled: "{!canEdit}"
-                    },
-                    xtype: "numberfield"
-                },
-                */
                 {
                     fieldLabel: "Zeit (h)",
                     xtype: 'timefield',
@@ -182,7 +186,7 @@ Ext.define('Tualo.timetracker.lazy.Panel', {
                     fieldLabel: "Anmerkungen",
                     xtype: "textarea",
                     bind: {
-                        value: "{remark_os}",
+                        value: "{record.remark}",
                         disabled: "{!canEdit}"
                     },
                     grow: true,
@@ -196,7 +200,8 @@ Ext.define('Tualo.timetracker.lazy.Panel', {
         },
         {
             reference: 'table',
-            xtype: 'dslist_view_staff_time_mat_entry',
+            xtype: 'dslist_zeiterfassung',
+
             title: null,
             features: {
                 ftype: 'summary',
@@ -207,7 +212,7 @@ Ext.define('Tualo.timetracker.lazy.Panel', {
             }],
             bind: {
                 selection: '{selectedEntry}',
-                store: '{time_mat_entry}',
+                store: '{zeiterfassung}',
                 autoLoad: false
             },
             flex: 1
