@@ -344,7 +344,7 @@ Ext.define('Tualo.timetracker.lazy.picker.Date', {
         '<tbody>',
         '<tr role="row">',
 
-        '<td class="' + Ext.baseCSSPrefix + 'datepicker-week-info" style="line-height: 12px; "></td>',
+        '<td class="' + Ext.baseCSSPrefix + 'datepicker-week-info" style="line-height: 12px;padding-right:2px; "></td>',
         '<tpl for="days">',
         '{#:this.isEndOfWeek}',
         '<td role="gridcell" class="{parent.baseCls}-day-cell"  >',
@@ -376,7 +376,7 @@ Ext.define('Tualo.timetracker.lazy.picker.Date', {
                 // eslint-disable-next-line vars-on-top
                 var end = value % 7 === 0 && value !== 0;
 
-                return end ? '</tr><tr role="row"><td class="' + Ext.baseCSSPrefix + 'datepicker-week-info" style="width:12.5%; line-height: 12px; "></td>' : '';
+                return end ? '</tr><tr role="row"><td class="' + Ext.baseCSSPrefix + 'datepicker-week-info" style="width:12.5%; line-height: 12px; padding-right:2px;"></td>' : '';
             },
             renderTodayBtn: function (values, out) {
                 Ext.DomHelper.generateMarkup(values.$comp.todayBtn.getRenderTree(), out);
@@ -1597,18 +1597,21 @@ Ext.define('Tualo.timetracker.lazy.picker.Date', {
     loadDateRange: function (startdate, stopdate) {
         var store = this.getStore();
         let filters = store.getFilters(); // an Ext.util.FilterCollection
-        filters.add([{
-            'id': 'task_dayx',
-            'property': 'task_date',
-            'operator': 'gt',
-            'value': startdate
-        }, {
-            'id': 'task_day',
-            'property': 'task_date',
-            'operator': 'lt',
-            'value': stopdate
-        }]);
-        if (this.fireEvent('beforefilter', filters)) {
+
+        let eventResult = this.fireEvent('beforefilter', filters);
+        console.log('beforefilter event result:', eventResult);
+        if (eventResult !== false) {
+            filters.add([{
+                'id': 'task_dayx',
+                'property': 'task_date',
+                'operator': 'gt',
+                'value': startdate
+            }, {
+                'id': 'task_day',
+                'property': 'task_date',
+                'operator': 'lt',
+                'value': stopdate
+            }]);
             store.setFilters(filters);
             store.load();
         }

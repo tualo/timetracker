@@ -26,7 +26,10 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
 
     onBeforefilter: function (filters) {
         console.log('onBeforefilter', filters);
-        if (Ext.isEmpty(this.getViewModel().get('mitarbeiter_id'))) return false;
+        if (Ext.isEmpty(this.getViewModel().get('mitarbeiter_id'))) {
+            console.log('onBeforefilter', 'aborted')
+            return false;
+        }
         filters.add({
             'id': 'mitarbeiter_id',
             property: 'mitarbeiter_id',
@@ -130,16 +133,19 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
     },
     onRangeChange: function (field, value) {
         let me = this,
-            vm = me.getViewModel();
-        if (me.updatingTime) {
+            vm = me.getViewModel(),
+            fieldName = field.getName(),
+            recordField = fieldName === 'range_start' ? 'task_start' :
+                (fieldName === 'range_stop' ? 'task_end' : null);
+        if (me.updatingTime || !recordField) {
             return;
         }
         me.updatingTime = true;
         try {
-            vm.set(field.getName(), value);
+            vm.set('record.' + recordField, value);
             let start = vm.get('record.task_start'),
                 stop = vm.get('record.task_end');
-            if (!start || !stop) {
+            if (!Ext.isDate(start) || !Ext.isDate(stop)) {
                 return;
             }
             let minutes = ((stop.getHours() * 60 + stop.getMinutes()) -
@@ -176,34 +182,11 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
     },
     loadTimePicker: function () {
         let me = this,
-            vm = me.getViewModel();
-
+            calendar = me.getView().down('timetracker_datepicker');
 
         if (Ext.isEmpty(me.getViewModel().get('mitarbeiter_id'))) return false;
-        /*me.getView().down('timetracker_datepicker').store.load({
-            params: {
-                filter: JSON.stringify(
-                    [
-                        {
-                            property: 'mitarbeiter_id',
-                            operator: 'eq',
-                            value: vm.get('mitarbeiter_id')
-                        },
-                        {
-                            property: 'task_date',
-                            operator: 'gt',
-                            value: '2026-09-01'
-                        },
-                        {
-                            property: 'task_date',
-                            operator: 'lt',
-                            value: '2026-12-01'
-                        }
-                    ]
-                )
-            }
-        });
-        */
+        calendar.fullUpdate(calendar.activeDate);
+
     },
     currentStaffId: async function () {
         let me = this,
@@ -220,7 +203,6 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
         } catch (e) {
             console.error(e);
         }
-        window.me = me;
         return 9999999;
     },
     onNew: async function () {
