@@ -330,11 +330,12 @@ Ext.define('Tualo.timetracker.lazy.picker.Date', {
         '<div id="{id}-middleBtnEl" data-ref="middleBtnEl" class="{baseCls}-month" role="heading">{%this.renderMonthBtn(values, out)%}</div>',
         '<div id="{id}-nextEl" data-ref="nextEl" class="{baseCls}-next {baseCls}-arrow" role="presentation" title="{nextText}"></div>',
         '</div>',
-        '<table role="grid" id="{id}-eventEl" data-ref="eventEl" class="{baseCls}-inner" cellspacing="0" tabindex="0" aria-readonly="true">',
+        '<table role="grid" id="{id}-eventEl" data-ref="eventEl" class="{baseCls}-inner" cellspacing="0" tabindex="0" aria-readonly="true" style="table-layout:fixed;width:100%">',
         '<thead>',
         '<tr role="row">',
+        '<th role="columnheader" class="{baseCls}-column-header {baseCls}-week-header"KW<br>Std.</th>',
         '<tpl for="dayNames">',
-        '<th role="columnheader" class="{parent.baseCls}-column-header" aria-label="{.}">',
+        '<th role="columnheader" class="{parent.baseCls}-column-header" aria-label="{.}" >',
         '<div role="presentation" class="{parent.baseCls}-column-header-inner">{.:this.firstInitial}</div>',
         '</th>',
         '</tpl>',
@@ -342,9 +343,11 @@ Ext.define('Tualo.timetracker.lazy.picker.Date', {
         '</thead>',
         '<tbody>',
         '<tr role="row">',
+
+        '<td class="' + Ext.baseCSSPrefix + 'datepicker-week-info" style="line-height: 12px; "></td>',
         '<tpl for="days">',
         '{#:this.isEndOfWeek}',
-        '<td role="gridcell">',
+        '<td role="gridcell" class="{parent.baseCls}-day-cell"  >',
         '<div hidefocus="on" class="{parent.baseCls}-date">*</div>',
         '</td>',
         '</tpl>',
@@ -373,7 +376,7 @@ Ext.define('Tualo.timetracker.lazy.picker.Date', {
                 // eslint-disable-next-line vars-on-top
                 var end = value % 7 === 0 && value !== 0;
 
-                return end ? '</tr><tr role="row">' : '';
+                return end ? '</tr><tr role="row"><td class="' + Ext.baseCSSPrefix + 'datepicker-week-info" style="width:12.5%; line-height: 12px; "></td>' : '';
             },
             renderTodayBtn: function (values, out) {
                 Ext.DomHelper.generateMarkup(values.$comp.todayBtn.getRenderTree(), out);
@@ -562,7 +565,7 @@ Ext.define('Tualo.timetracker.lazy.picker.Date', {
 
         me.callParent(arguments);
 
-        me.cells = me.eventEl.select('tbody td');
+        me.cells = me.eventEl.select('tbody td.' + me.baseCls + '-day-cell');
         me.textNodes = me.eventEl.query(dateCellSelector);
 
         console.log('onRender', me.textNodes);
@@ -1523,72 +1526,72 @@ Ext.define('Tualo.timetracker.lazy.picker.Date', {
     },
 
     onStoreLoaded: function (store, records, successful, operation, eOpts) {
-        console.log('store loaded', store.getRange());
         var me = this,
-            cells = me.cells.elements,
             textNodes = me.textNodes,
-            disabledCls = me.disabledCellCls,
             date = me.activeDate,
             eDate = Ext.Date,
             i = 0,
-            extraDays = 0,
-            newDate = +eDate.clearTime(date, true),
-            today = +eDate.clearTime(new Date()),
-            min = me.minDate ? eDate.clearTime(me.minDate, true) : Number.NEGATIVE_INFINITY,
-            max = me.maxDate ? eDate.clearTime(me.maxDate, true) : Number.POSITIVE_INFINITY,
-            ddMatch = me.disabledDatesRE,
-            ddText = me.disabledDatesText,
-            ddays = me.disabledDays ? me.disabledDays.join('') : false,
-            ddaysText = me.disabledDaysText,
-            format = me.format,
-            days = eDate.getDaysInMonth(date),
             firstOfMonth = eDate.getFirstDateOfMonth(date),
             startingPos = firstOfMonth.getDay() - me.startDay,
             previousMonth = eDate.add(date, eDate.MONTH, -1),
-            ariaTitleDateFormat = me.ariaTitleDateFormat,
-            prevStart, current, disableToday, tempDate, setCellClass, html, cls,
-            formatValue, value;
+            prevStart, current;
 
         if (startingPos < 0) {
             startingPos += 7;
         }
 
-        days += startingPos;
         prevStart = eDate.getDaysInMonth(previousMonth) - startingPos;
         current =
             new Date(previousMonth.getFullYear(), previousMonth.getMonth(), prevStart, me.initHour);
 
-        //let startDate = Ext.util.Format.date(current,'Y-m-d');
+        let hoursByDate = {},
+            recordsByDate = {};
+        (records || store.getRange()).forEach(function (record) {
+            let taskDate = record.get('task_date'),
+                parsedDate = Ext.isDate(taskDate) ? taskDate : Ext.Date.parse(String(taskDate).substring(0, 10), 'Y-m-d');
+            if (parsedDate) {
+                let dateKey = Ext.util.Format.date(parsedDate, 'Y-m-d');
+                recordsByDate[dateKey] = true;
+                hoursByDate[dateKey] = (hoursByDate[dateKey] || 0) + (Number(record.get('hours')) || 0);
+            }
+        });
+
+        let weekCells = me.eventEl.query('tbody td.' + Ext.baseCSSPrefix + 'datepicker-week-info');
         for (; i < me.numDays; ++i) {
-            if (i < startingPos) {
-                html = (++prevStart);
-                cls = me.prevCls;
-            }
-            else if (i >= days) {
-                html = (++extraDays);
-                cls = me.nextCls;
-            }
-            else {
-                html = i - startingPos + 1;
-                cls = me.activeCls;
-            }
+            let useDate = new Date(current.getFullYear(), current.getMonth(), current.getDate() + 1),
+                dateKey = Ext.util.Format.date(useDate, 'Y-m-d');
 
-            let useDate = new Date(current.getFullYear(), current.getMonth(), current.getDate() + 1);
-
-            let fr = store.findRecord('task_date', useDate, 0, false, false, true);
-            if (fr) {
+            if (recordsByDate[dateKey]) {
                 textNodes[i].style.backgroundColor = 'rgba(79, 210, 52, 0.38)';
                 textNodes[i].style.fontWeight = 400;
-
-
-                //                .innerHTML = '<div style="background-color: rgba(79, 210, 52, 0.38);border-radius: 4px; width: 100%; margin:4px;">'+html+'</div> ';
             } else {
                 textNodes[i].style.removeProperty("background-color");
                 textNodes[i].style.removeProperty("font-weight");
             }
+
+            if (i % 7 === 6) {
+                let weekIndex = Math.floor(i / 7),
+                    weekStart = new Date(current.getFullYear(), current.getMonth(), current.getDate() - 5),
+                    weekHours = 0;
+                for (let day = 0; day < 7; day++) {
+                    let weekDate = new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate() + day),
+                        weekKey = Ext.util.Format.date(weekDate, 'Y-m-d');
+                    weekHours += hoursByDate[weekKey] || 0;
+                }
+                weekCells[weekIndex].innerHTML = '<span style="font-size:0.6em; "><span style="font-size:1em">KW ' + me.getIsoWeek(weekStart) + '</span><br><span style="font-size:1.1em">' +
+                    weekHours.toFixed(2).replace('.', ',') + '</span></span>';
+            }
             current.setDate(current.getDate() + 1);
         }
 
+    },
+
+    getIsoWeek: function (date) {
+        let thursday = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        thursday.setDate(thursday.getDate() + 3 - ((thursday.getDay() + 6) % 7));
+        let firstThursday = new Date(thursday.getFullYear(), 0, 4);
+        firstThursday.setDate(firstThursday.getDate() + 3 - ((firstThursday.getDay() + 6) % 7));
+        return 1 + Math.round((thursday - firstThursday) / 604800000);
     },
 
     loadDateRange: function (startdate, stopdate) {
@@ -1596,17 +1599,19 @@ Ext.define('Tualo.timetracker.lazy.picker.Date', {
         let filters = store.getFilters(); // an Ext.util.FilterCollection
         filters.add([{
             'id': 'task_dayx',
-            property: 'task_day',
+            'property': 'task_date',
             'operator': 'gt',
-            value: startdate
+            'value': startdate
         }, {
             'id': 'task_day',
-            property: 'task_day',
+            'property': 'task_date',
             'operator': 'lt',
-            value: stopdate
+            'value': stopdate
         }]);
-        store.setFilters(filters);
-        store.load();
+        if (this.fireEvent('beforefilter', filters)) {
+            store.setFilters(filters);
+            store.load();
+        }
     },
 
     /**

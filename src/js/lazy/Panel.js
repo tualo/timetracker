@@ -96,6 +96,7 @@ Ext.define('Tualo.timetracker.lazy.Panel', {
                         select: function () {
                             console.log('select', arguments);
                         },
+                        beforefilter: 'onBeforefilter',
                         highlightitem: 'onHighlightitem'
                     }
                 },

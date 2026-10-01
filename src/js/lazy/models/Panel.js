@@ -21,7 +21,10 @@ Ext.define('Tualo.timetracker.lazy.models.Panel', {
             type: 'zeiterfassung_store',
             autoLoad: false,
             autoSync: false,
-            pageSize: 100000
+            pageSize: 100000,
+            listeners: {
+                beforeload: 'onZeiterfassungPickerBeforeLoad'
+            }
         },
         zeiterfassung: {
             type: 'zeiterfassung_store',
@@ -32,15 +35,7 @@ Ext.define('Tualo.timetracker.lazy.models.Panel', {
                 beforeload: 'onZeiterfassungBeforeLoad'
             }
         },
-        zeiterfassung_picker: {
-            type: 'zeiterfassung_store',
-            autoLoad: false,
-            autoSync: false,
-            pageSize: 100000,
-            listeners: {
-                beforeload: 'onZeiterfassungPickerBeforeLoad'
-            }
-        },
+
         tualo_job: {
             type: 'tualo_job_store',
             autoLoad: true,

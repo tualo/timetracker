@@ -23,33 +23,46 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
     initViewModel: function (vm) {
         vm.bind('{selectedEntry}', 'onSelect', this);
     },
+
+    onBeforefilter: function (filters) {
+        console.log('onBeforefilter', filters);
+        if (Ext.isEmpty(this.getViewModel().get('mitarbeiter_id'))) return false;
+        filters.add({
+            'id': 'mitarbeiter_id',
+            property: 'mitarbeiter_id',
+            operator: 'eq',
+            value: this.getViewModel().get('mitarbeiter_id')
+        });
+        return true;
+    },
     onZeiterfassungPickerBeforeLoad: function (store, operation, eOpts) {
         console.log('onZeiterfassungPickerBeforeLoad beforeload', operation);
         let extraParams = store.getProxy().getExtraParams(),
-            filters = [];
+            filters = store.getFilters();
         if (Ext.isEmpty(extraParams)) { extraParams = {}; };
 
-        filters.push({
+        /*
+        filters.add({
+            'id': 'mitarbeiter_id',
             property: 'id',
             operator: 'eq',
             value: this.getViewModel().get('mitarbeiter_id')
         });
+        */
 
-        filters.push({
-            property: 'task_date',
-            operator: 'eq',
-            value: this.getViewModel().get('currentDate')
-        });
+        //store.setFilters(filters);
 
-        extraParams.filter = Ext.JSON.encode(filters);
-        store.getProxy().setExtraParams(extraParams);
+        console.log(filters, extraParams);
+
+        //extraParams.filter = Ext.JSON.encode(filters);
+        //store.getProxy().setExtraParams(extraParams);
     },
     onZeiterfassungBeforeLoad: function (store, operation, eOpts) {
         console.log('onZeiterfassungBeforeLoad beforeload', operation);
         let extraParams = store.getProxy().getExtraParams(),
             filters = [];
         if (Ext.isEmpty(extraParams)) { extraParams = {}; };
-
+        if (Ext.isEmpty(this.getViewModel().get('mitarbeiter_id'))) return false;
         filters.push({
             property: 'mitarbeiter_id',
             operator: 'eq',
@@ -71,6 +84,7 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
             filters = [];
         if (Ext.isEmpty(extraParams)) { extraParams = {}; };
 
+        if (Ext.isEmpty(this.getViewModel().get('mitarbeiter_id'))) return false;
         filters.push({
             property: 'id',
             operator: 'eq',
@@ -163,7 +177,10 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
     loadTimePicker: function () {
         let me = this,
             vm = me.getViewModel();
-        me.getView().down('timetracker_datepicker').store.load({
+
+
+        if (Ext.isEmpty(me.getViewModel().get('mitarbeiter_id'))) return false;
+        /*me.getView().down('timetracker_datepicker').store.load({
             params: {
                 filter: JSON.stringify(
                     [
@@ -175,7 +192,7 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
                         {
                             property: 'task_date',
                             operator: 'gt',
-                            value: '2026-01-01'
+                            value: '2026-09-01'
                         },
                         {
                             property: 'task_date',
@@ -186,6 +203,7 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
                 )
             }
         });
+        */
     },
     currentStaffId: async function () {
         let me = this,

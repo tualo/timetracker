@@ -70,6 +70,6 @@ from
     time_mat_entry
     where 
         true
-        and job_link in (select id from tualo_job where length(id) < 3)
+        and job_link in (select id from tualo_job where length(id) < 7)
         and staff_link in (select id from mitarbeiter)
         and tos_link in (select gruppen_id from artikelgruppen)
