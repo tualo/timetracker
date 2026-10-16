@@ -3,9 +3,10 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
     alias: 'controller.timetracker',
 
     onBoxReady: function () {
-        console.log('***********');
+        console.log('Tualo.timetracker.lazy.controller.Panel', 'onBoxReady');
         let me = this;
         let async_fn = async () => {
+            console.log('Tualo.timetracker.lazy.controller.Panel', 'onBoxReady.async_fn');
             let res = await me.currentStaffId();
             console.log('current staff id', res);
             if (res == 9999999) {
@@ -22,12 +23,12 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
     },
 
     initViewModel: function (vm) {
-        console.log('initViewModel', vm);
+        console.log('Tualo.timetracker.lazy.controller.Panel', 'initViewModel', vm);
         vm.bind('{selectedEntry}', 'onSelect', this);
     },
 
     onBeforefilter: function (filters) {
-        console.log('onBeforefilter', filters);
+        console.log('Tualo.timetracker.lazy.controller.Panel', 'onBeforefilter', filters);
         if (Ext.isEmpty(this.getViewModel().get('mitarbeiter_id'))) {
             console.log('onBeforefilter', 'aborted')
             return false;
@@ -41,7 +42,7 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
         return true;
     },
     onZeiterfassungPickerBeforeLoad: function (store, operation, eOpts) {
-        console.log('onZeiterfassungPickerBeforeLoad beforeload', operation);
+        console.log('Tualo.timetracker.lazy.controller.Panel', 'onZeiterfassungPickerBeforeLoad', store, operation, eOpts);
         let extraParams = store.getProxy().getExtraParams(),
             filters = store.getFilters();
         if (Ext.isEmpty(extraParams)) { extraParams = {}; };
@@ -63,7 +64,7 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
         //store.getProxy().setExtraParams(extraParams);
     },
     onZeiterfassungBeforeLoad: function (store, operation, eOpts) {
-        console.log('onZeiterfassungBeforeLoad beforeload', operation);
+        console.log('Tualo.timetracker.lazy.controller.Panel', 'onZeiterfassungBeforeLoad', store, operation, eOpts);
         let extraParams = store.getProxy().getExtraParams(),
             filters = [];
         if (Ext.isEmpty(extraParams)) { extraParams = {}; };
@@ -86,7 +87,7 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
         store.getProxy().setExtraParams(extraParams);
     },
     onZeiterfassungLoad: function (store, records, successful, eOpts) {
-        console.log('onZeiterfassungLoad load', records, successful);
+        console.log('Tualo.timetracker.lazy.controller.Panel', 'onZeiterfassungLoad', store, records, successful, eOpts);
         let me = this,
             vm = me.getViewModel(),
             view = me.getView(),
@@ -99,7 +100,7 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
 
     },
     onMitarbeiterBeforeLoad: function (store, operation, eOpts) {
-        console.log('onMitarbeiterBeforeLoad beforeload', operation);
+        console.log('Tualo.timetracker.lazy.controller.Panel', 'onMitarbeiterBeforeLoad', store, operation, eOpts);
         let extraParams = store.getProxy().getExtraParams(),
             filters = [];
         if (Ext.isEmpty(extraParams)) { extraParams = {}; };
@@ -114,6 +115,7 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
         store.getProxy().setExtraParams(extraParams);
     },
     onJobBeforeLoad: function (store, operation, eOpts) {
+        console.log('Tualo.timetracker.lazy.controller.Panel', 'onJobBeforeLoad', store, operation, eOpts);
         let extraParams = store.getProxy().getExtraParams(),
             filters = [];
         if (Ext.isEmpty(extraParams)) { extraParams = {}; };
@@ -129,6 +131,7 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
         console.log('onJobBeforeLoad beforeload', operation);
     },
     onHourChange: function (mex, nv, ov) {
+        console.log('Tualo.timetracker.lazy.controller.Panel', 'onHourChange', mex, nv, ov);
         let me = this,
             vm = me.getViewModel(),
             record = vm.get('record');
@@ -154,6 +157,7 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
         }
     },
     onRangeChange: function (field, value) {
+        console.log('Tualo.timetracker.lazy.controller.Panel', 'onRangeChange', field, value);
         let me = this,
             vm = me.getViewModel(),
             fieldName = field.getName(),
@@ -181,6 +185,7 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
         }
     },
     onSelect: function (selection) {
+        console.log('Tualo.timetracker.lazy.controller.Panel', 'onSelect', selection);
         let me = this,
             vm = me.getViewModel(),
             updatingTime = me.updatingTime;
@@ -208,6 +213,7 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
         }
     },
     loadTimePicker: function () {
+        console.log('Tualo.timetracker.lazy.controller.Panel', 'loadTimePicker');
         let me = this,
             calendar = me.getView().down('timetracker_datepicker');
 
@@ -216,6 +222,7 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
 
     },
     currentStaffId: async function () {
+        console.log('Tualo.timetracker.lazy.controller.Panel', 'currentStaffId');
         let me = this,
             vm = me.getViewModel();
         try {
@@ -234,6 +241,7 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
         return 9999999;
     },
     onNew: async function () {
+        console.log('Tualo.timetracker.lazy.controller.Panel', 'onNew');
         let me = this,
             vm = me.getViewModel(),
             view = me.getView(),
@@ -250,6 +258,7 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
             };
 
         let fn = () => {
+            console.log('Tualo.timetracker.lazy.controller.Panel', 'onNew.fn');
             let record = Ext.create('Tualo.DataSets.model.Zeiterfassung', newData);
             store.add(record);
             grid.setSelection(record);
@@ -282,6 +291,7 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
 
     },
     onTaskDateChange: function (field, newValue, oldValue) {
+        console.log('Tualo.timetracker.lazy.controller.Panel', 'onTaskDateChange', field, newValue, oldValue);
         let me = this,
             vm = me.getViewModel();
         if (me.updatingTime || !newValue || !vm.get('record')) {
@@ -319,6 +329,7 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
 
     },
     onSave: function () {
+        console.log('Tualo.timetracker.lazy.controller.Panel', 'onSave');
         let me = this,
             vm = me.getViewModel(),
             view = me.getView(),
@@ -337,16 +348,18 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
         store.sync({
             scope: me,
             success: function (batch, options) {
+                console.log('Tualo.timetracker.lazy.controller.Panel', 'onSave.success', batch, options);
                 console.log('sync successful', batch, options);
                 me.loadTimePicker();
             },
             failure: function (batch, options) {
+                console.log('Tualo.timetracker.lazy.controller.Panel', 'onSave.failure', batch, options);
                 console.log('sync failed', batch, options);
             }
         });
     },
     onHighlightitem: function (a, b, date) {
-        console.log('onHighlightitem', date);
+        console.log('Tualo.timetracker.lazy.controller.Panel', 'onHighlightitem', a, b, date);
         let me = this,
             vm = me.getViewModel(),
             store = vm.getStore('zeiterfassung');
