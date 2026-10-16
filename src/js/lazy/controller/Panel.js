@@ -2,11 +2,12 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
     extend: 'Ext.app.ViewController',
     alias: 'controller.timetracker',
 
-    onAfterRender: function () {
-        console.log('afterrender***********');
+    onBoxReady: function () {
+        console.log('***********');
         let me = this;
         let async_fn = async () => {
             let res = await me.currentStaffId();
+            console.log('current staff id', res);
             if (res == 9999999) {
                 Ext.toast({
                     html: 'Ihrem Login ist noch kein Mitarbeiter zugeordnet',
@@ -21,6 +22,7 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
     },
 
     initViewModel: function (vm) {
+        console.log('initViewModel', vm);
         vm.bind('{selectedEntry}', 'onSelect', this);
     },
 
@@ -72,14 +74,27 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
             value: this.getViewModel().get('mitarbeiter_id')
         });
 
+
         filters.push({
             property: 'task_date',
             operator: 'eq',
             value: this.getViewModel().get('currentDate')
         });
 
+
         extraParams.filter = Ext.JSON.encode(filters);
         store.getProxy().setExtraParams(extraParams);
+    },
+    onZeiterfassungLoad: function (store, records, successful, eOpts) {
+        console.log('onZeiterfassungLoad load', records, successful);
+        let me = this,
+            vm = me.getViewModel(),
+            view = me.getView(),
+            grid = view.down('dslist_zeiterfassung');
+        if (records.length > 0) {
+            grid.setSelection(records[0]);
+        }
+
     },
     onMitarbeiterBeforeLoad: function (store, operation, eOpts) {
         console.log('onMitarbeiterBeforeLoad beforeload', operation);
@@ -162,10 +177,15 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
         let me = this,
             vm = me.getViewModel();
         vm.set('isNew', false);
+
+        console.log('onSelect', selection);
         if (Ext.isEmpty(selection)) {
             vm.set('hasRecord', false);
         } else {
             vm.set('record', selection);
+            console.log('onSelect record', selection.get('task_start'), selection.get('task_end'));
+            vm.set('task_start', selection.get('task_start'));
+            vm.set('task_end', selection.get('task_end'));
 
             let h = Math.floor(vm.get('hours'));
             let m = (vm.get('hours') - h) * 60;
@@ -192,6 +212,7 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
         let me = this,
             vm = me.getViewModel();
         try {
+            if (!Ext.isEmpty(vm.get('mitarbeiter_id'))) return vm.get('mitarbeiter_id');
             let response = await fetch('./timetracker/mitarbeiter_id');
             let data = await response.json();
             if (data.success) {
@@ -211,10 +232,30 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
             view = me.getView(),
             grid = view.down('dslist_zeiterfassung'),
             store = vm.getStore('zeiterfassung'),
-            record = Ext.create('Tualo.DataSets.model.Zeiterfassung')
+            newData = {
+                mitarbeiter_id: await me.currentStaffId(),
+                state_os: 2,
+                remark: '',
+                hours: 0,
+                task_date: vm.get('currentDate'),
+                task_start: new Date(),
+                task_end: new Date()
+            };
 
-        vm.set('mitarbeiter_id', await me.currentStaffId());
+        let fn = () => {
+            let record = Ext.create('Tualo.DataSets.model.Zeiterfassung', newData);
+            store.add(record);
+            grid.setSelection(record);
+            console.log('onNew', record, store.count());
+        }
 
+        setTimeout(fn, 10);
+
+
+
+        // vm.set('mitarbeiter_id', await me.currentStaffId());
+
+        /*
         record.set('mitarbeiter_id', await me.currentStaffId());
         record.set('state_os', 2); // nicht bekannt
         record.set('remark', '');
@@ -224,10 +265,13 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
         record.set('task_end', new Date());
 
         vm.set('record', record);
-        vm.set('isNew', true);
-        vm.set('hasRecord', true);
-        // store.add(record);
-        // grid.setSelection(record);
+        */
+        // vm.set('isNew', true);
+        //vm.set('hasRecord', true);
+        // console.log('onNew', 'after setting view model', record);
+
+
+        //
 
     },
     onTaskDateChange: function (field, newValue, oldValue) {
@@ -236,6 +280,7 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
         if (!newValue || !vm.get('record')) {
             return;
         }
+        console.log('onTaskDateChange', newValue);
         vm.set('currentDate', Ext.util.Format.date(newValue, 'Y-m-d'));
         let start = vm.get('record.task_start');
         if (start) {
@@ -282,7 +327,16 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
             grid.setSelection(record);
         }
 
-        store.sync();
+        store.sync({
+            scope: me,
+            success: function (batch, options) {
+                console.log('sync successful', batch, options);
+                me.loadTimePicker();
+            },
+            failure: function (batch, options) {
+                console.log('sync failed', batch, options);
+            }
+        });
     },
     onHighlightitem: function (a, b, date) {
         console.log('onHighlightitem', date);

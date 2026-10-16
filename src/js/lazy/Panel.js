@@ -17,7 +17,7 @@ Ext.define('Tualo.timetracker.lazy.Panel', {
         type: 'timetracker'
     },
     listeners: {
-        afterrender: 'onAfterRender'
+        boxready: 'onBoxReady'
     },
     bind: {
         disabled: "{disabled}"
@@ -146,7 +146,7 @@ Ext.define('Tualo.timetracker.lazy.Panel', {
                             xtype: 'timefield',
                             name: 'range_start',
                             bind: {
-                                value: "{record.task_start}",
+                                value: "{task_start}",
                             },
                             listeners: {
                                 change: 'onRangeChange'
@@ -158,7 +158,7 @@ Ext.define('Tualo.timetracker.lazy.Panel', {
                             xtype: 'timefield',
                             name: 'range_stop',
                             bind: {
-                                value: "{record.task_end}",
+                                value: "{task_end}",
                             },
                             listeners: {
                                 change: 'onRangeChange'
