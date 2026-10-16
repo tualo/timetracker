@@ -333,7 +333,7 @@ Ext.define('Tualo.timetracker.lazy.picker.Date', {
         '<table role="grid" id="{id}-eventEl" data-ref="eventEl" class="{baseCls}-inner" cellspacing="0" tabindex="0" aria-readonly="true" style="table-layout:fixed;width:100%">',
         '<thead>',
         '<tr role="row">',
-        '<th role="columnheader" class="{baseCls}-column-header {baseCls}-week-header"KW<br>Std.</th>',
+        '<th role="columnheader" class="{baseCls}-column-header {baseCls}-week-header" style="width: 40px;font-size: 0.8em;">KW<br>Std.</th>',
         '<tpl for="dayNames">',
         '<th role="columnheader" class="{parent.baseCls}-column-header" aria-label="{.}" >',
         '<div role="presentation" class="{parent.baseCls}-column-header-inner">{.:this.firstInitial}</div>',

@@ -22,6 +22,25 @@ Ext.define('Tualo.timetracker.lazy.Panel', {
     bind: {
         disabled: "{disabled}"
     },
+    "keyMap": {
+        'ctrl+s': {
+            handler: 'onSaveShortcut'
+        },
+        'cmd+s': {
+            handler: 'onSaveShortcut'
+        },
+        'ctrl++': {
+            handler: 'onNewShortcut'
+        },
+        'cmd++': {
+            handler: 'onNewShortcut'
+        },
+        esc: {
+            handler: function (event, view) {
+
+            }
+        }
+    },
     getWindowTitle: function () { return "Zeiterfassung" },
     tools: [
         {
@@ -38,10 +57,12 @@ Ext.define('Tualo.timetracker.lazy.Panel', {
             items: [
                 {
                     iconCls: 'x-fa fa-save',
+                    tooltip: 'Speichern (Strg+S)',
                     handler: 'onSave',
                 },
                 {
                     iconCls: 'x-fa fa-plus',
+                    tooltip: 'Hinzufuegen (Strg+N)',
                     handler: 'onNew'
                 }
             ]

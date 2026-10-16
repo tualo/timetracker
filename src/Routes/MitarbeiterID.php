@@ -21,12 +21,18 @@ class MitarbeiterID extends \Tualo\Office\Basic\RouteWrapper
             try {
                 $db = App::get('session')->getDB();
                 $id = $db->singleValue('select id from mitarbeiter where user_login=getSessionUser()', [], 'id');
+                $user_login = $db->singleValue('select getSessionUser() user_login', [], 'user_login');
                 if ($id === false) {
                     $id = $db->singleValue('select id from mitarbeiter_ersatz where user_login=getSessionUser()', [], 'id');
+                    $user_login = $db->singleValue('select user_login from mitarbeiter where id={id}', ['id' => $id], 'user_login');
                 }
+
+                $organigramm_mitarbeiter = $db->singleValue('select organigramm_mitarbeiter({user_login}) organigramm_mitarbeiter ', ['user_login' => $user_login], 'organigramm_mitarbeiter');
 
                 if ($id) {
                     App::result('id',  $id);
+                    App::result('user_login', $user_login);
+                    App::result('organigramm_mitarbeiter', json_decode($organigramm_mitarbeiter, true));
                     App::result('success', true);
                 }
             } catch (\Exception $e) {

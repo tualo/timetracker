@@ -1,10 +1,35 @@
 Ext.define('Tualo.timetracker.lazy.controller.Panel', {
     extend: 'Ext.app.ViewController',
     alias: 'controller.timetracker',
+    requires: [
+        'Ext.util.KeyMap'
+    ],
 
     onBoxReady: function () {
         console.log('Tualo.timetracker.lazy.controller.Panel', 'onBoxReady');
         let me = this;
+        /*
+        if (!me.keyMap) {
+            me.keyMap = new Ext.util.KeyMap({
+                target: me.getView().getEl(),
+                ignoreInputFields: false,
+                binding: [{
+                    key: 'n',
+                    ctrl: true,
+                    shift: false,
+                    alt: false,
+                    handler: me.onNewShortcut,
+                    scope: me
+                }, {
+                    key: 's',
+                    ctrl: true,
+                    shift: false,
+                    alt: false,
+                    handler: me.onSaveShortcut,
+                    scope: me
+                }]
+            });
+        }*/
         let async_fn = async () => {
             console.log('Tualo.timetracker.lazy.controller.Panel', 'onBoxReady.async_fn');
             let res = await me.currentStaffId();
@@ -20,6 +45,28 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
             console.log('current staff id loaded', res);
         };
         async_fn();
+    },
+
+    onNewShortcut: function (key, event) {
+        console.log('Tualo.timetracker.lazy.controller.Panel', 'onNewShortcut', key, event);
+        event.stopEvent();
+        if (!this.getView().isDisabled()) {
+            this.onNew();
+        }
+    },
+
+    onSaveShortcut: function (key, event) {
+        console.log('Tualo.timetracker.lazy.controller.Panel', 'onSaveShortcut', key, event);
+        event.stopEvent();
+        if (!this.getView().isDisabled() && this.getViewModel().get('hasRecord')) {
+            this.onSave();
+        }
+    },
+
+    destroy: function () {
+        console.log('Tualo.timetracker.lazy.controller.Panel', 'destroy');
+        this.keyMap = Ext.destroy(this.keyMap);
+        this.callParent(arguments);
     },
 
     initViewModel: function (vm) {
@@ -111,11 +158,14 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
         if (Ext.isEmpty(extraParams)) { extraParams = {}; };
 
         if (Ext.isEmpty(this.getViewModel().get('mitarbeiter_id'))) return false;
+        let filterList = this.getViewModel().get('organigramm_mitarbeiter');
+        filterList.push(this.getViewModel().get('user_login'));
         filters.push({
-            property: 'id',
-            operator: 'eq',
-            value: this.getViewModel().get('mitarbeiter_id')
+            property: 'user_login',
+            operator: 'in',
+            value: filterList
         });
+
         extraParams.filter = Ext.JSON.encode(filters);
         store.getProxy().setExtraParams(extraParams);
     },
@@ -238,6 +288,8 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
             console.log('Tualo.timetracker.lazy.controller.Panel', 'currentStaffId', data);
             if (data.success) {
                 vm.set('mitarbeiter_id', data.id);
+                vm.set('user_login', data.user_login);
+                vm.set('organigramm_mitarbeiter', data.organigramm_mitarbeiter);
                 me.getViewModel().getStore('mitarbeiter').load();
                 me.loadTimePicker();
                 return data.id;
