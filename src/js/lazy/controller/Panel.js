@@ -93,6 +93,8 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
             grid = view.down('dslist_zeiterfassung');
         if (records && records.length > 0) {
             grid.setSelection(records[0]);
+        } else {
+            grid.setSelection(null);
         }
 
     },
