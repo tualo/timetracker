@@ -64,11 +64,16 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
         //store.getProxy().setExtraParams(extraParams);
     },
     onZeiterfassungBeforeLoad: function (store, operation, eOpts) {
+        let me = this;
         console.log('Tualo.timetracker.lazy.controller.Panel', 'onZeiterfassungBeforeLoad', store, operation, eOpts);
         let extraParams = store.getProxy().getExtraParams(),
             filters = [];
         if (Ext.isEmpty(extraParams)) { extraParams = {}; };
         if (Ext.isEmpty(this.getViewModel().get('mitarbeiter_id'))) return false;
+        if (me._preventReload === true) {
+            console.log('Tualo.timetracker.lazy.controller.Panel', 'onZeiterfassungBeforeLoad', 'preventReload:', me._preventReload);
+            return false;
+        }
         filters.push({
             property: 'mitarbeiter_id',
             operator: 'eq',
@@ -260,11 +265,15 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
             };
 
         let fn = () => {
+            me._preventReload = true;
             console.log('Tualo.timetracker.lazy.controller.Panel', 'onNew.fn');
             let record = Ext.create('Tualo.DataSets.model.Zeiterfassung', newData);
             store.add(record);
             grid.setSelection(record);
             console.log('onNew', record, store.count());
+            setTimeout(() => {
+                me._preventReload = false;
+            }, 1000);
         }
 
         setTimeout(fn, 10);
@@ -325,9 +334,7 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
                 me.updatingTime = false;
             }
         }
-        if (!Ext.isEmpty(oldValue)) {
-            me.getViewModel().getStore('zeiterfassung').load();
-        }
+        me.getViewModel().getStore('zeiterfassung').load();
 
         //.getStore().load();
 
