@@ -6,9 +6,7 @@ Ext.define('Tualo.timetracker.lazy.models.Panel', {
         currentDate: new Date(),
         hasRecord: false,
         mitarbeiter_id: null,
-        sexagesimalformat: '01:00',
-        task_start: new Date(),
-        task_end: new Date()
+        sexagesimalformat: '01:00'
     },
     formulas: {
         disabled: function (get) {

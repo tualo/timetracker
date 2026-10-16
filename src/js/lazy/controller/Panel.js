@@ -128,8 +128,13 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
     },
     onHourChange: function (mex, nv, ov) {
         let me = this,
-            vm = me.getViewModel();
-        if (nv && !me.updatingTime) {
+            vm = me.getViewModel(),
+            record = vm.get('record');
+        if (nv && record && !me.updatingTime) {
+            if (nv.getHours() * 60 + nv.getMinutes() === Math.round(record.get('hours') * 60)) {
+                return;
+            }
+
             let minutes = nv.getHours() * 60 + nv.getMinutes(),
                 stop = new Date(),
                 start = new Date(stop.getTime() - minutes * 60000);
@@ -175,29 +180,29 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
     },
     onSelect: function (selection) {
         let me = this,
-            vm = me.getViewModel();
-        vm.set('isNew', false);
+            vm = me.getViewModel(),
+            updatingTime = me.updatingTime;
 
-        console.log('onSelect', selection);
-        if (Ext.isEmpty(selection)) {
-            vm.set('hasRecord', false);
-        } else {
-            vm.set('record', selection);
-            console.log('onSelect record', selection.get('task_start'), selection.get('task_end'));
-            vm.set('task_start', selection.get('task_start'));
-            vm.set('task_end', selection.get('task_end'));
+        me.updatingTime = true;
+        try {
+            vm.set('isNew', false);
 
-            let h = Math.floor(vm.get('hours'));
-            let m = (vm.get('hours') - h) * 60;
+            console.log('onSelect', selection);
+            if (Ext.isEmpty(selection)) {
+                vm.set('hasRecord', false);
+            } else {
+                vm.set('record', selection);
 
-            me.updatingTime = true;
-            try {
-                vm.set('sexagesimalformat', Ext.String.leftPad(h, 2, '0') + ':' + Ext.String.leftPad(Math.round(m), 2, '0'));
-                vm.notify();
-            } finally {
-                me.updatingTime = false;
+                let minutes = Math.round(selection.get('hours') * 60),
+                    h = Math.floor(minutes / 60),
+                    m = minutes % 60;
+
+                vm.set('sexagesimalformat', Ext.String.leftPad(h, 2, '0') + ':' + Ext.String.leftPad(m, 2, '0'));
+                vm.set('hasRecord', true);
             }
-            vm.set('hasRecord', true);
+            vm.notify();
+        } finally {
+            me.updatingTime = updatingTime;
         }
     },
     loadTimePicker: function () {
@@ -277,7 +282,7 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
     onTaskDateChange: function (field, newValue, oldValue) {
         let me = this,
             vm = me.getViewModel();
-        if (!newValue || !vm.get('record')) {
+        if (me.updatingTime || !newValue || !vm.get('record')) {
             return;
         }
         console.log('onTaskDateChange', newValue);
