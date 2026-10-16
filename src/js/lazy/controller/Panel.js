@@ -325,7 +325,9 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
                 me.updatingTime = false;
             }
         }
-        me.getViewModel().getStore('zeiterfassung').load();
+        if (!Ext.isEmpty(oldValue)) {
+            me.getViewModel().getStore('zeiterfassung').load();
+        }
 
         //.getStore().load();
 
