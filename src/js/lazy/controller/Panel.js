@@ -229,6 +229,8 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
             if (!Ext.isEmpty(vm.get('mitarbeiter_id'))) return vm.get('mitarbeiter_id');
             let response = await fetch('./timetracker/mitarbeiter_id');
             let data = await response.json();
+
+            console.log('Tualo.timetracker.lazy.controller.Panel', 'currentStaffId', data);
             if (data.success) {
                 vm.set('mitarbeiter_id', data.id);
                 me.getViewModel().getStore('mitarbeiter').load();
