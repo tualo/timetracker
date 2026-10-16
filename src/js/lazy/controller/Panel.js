@@ -299,7 +299,7 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
         if (me.updatingTime || !newValue || !vm.get('record')) {
             return;
         }
-        console.log('onTaskDateChange', newValue);
+        console.log('onTaskDateChange', newValue, oldValue);
         vm.set('currentDate', Ext.util.Format.date(newValue, 'Y-m-d'));
         let start = vm.get('record.task_start');
         if (start) {
