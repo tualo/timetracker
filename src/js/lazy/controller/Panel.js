@@ -276,6 +276,13 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
         calendar.fullUpdate(calendar.activeDate);
 
     },
+    onMitarbeiterChange: function (field, newValue, oldValue) {
+        let me = this,
+            vm = me.getViewModel();
+        console.log('Tualo.timetracker.lazy.controller.Panel', 'onMitarbeiterChange', newValue, oldValue);
+        vm.set('mitarbeiter_id', newValue);
+        this.loadTimePicker();
+    },
     currentStaffId: async function () {
         console.log('Tualo.timetracker.lazy.controller.Panel', 'currentStaffId');
         let me = this,

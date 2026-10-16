@@ -6,6 +6,8 @@ Ext.define('Tualo.timetracker.lazy.models.Panel', {
         currentDate: new Date(),
         hasRecord: false,
         mitarbeiter_id: null,
+        user_login: null,
+        organigramm_mitarbeiter: null,
         sexagesimalformat: '01:00'
     },
     formulas: {
@@ -14,6 +16,10 @@ Ext.define('Tualo.timetracker.lazy.models.Panel', {
         },
         canEdit: function (get) {
             return get('hasRecord') !== false;
+        },
+        title: function (get) {
+            let mitarbeiter_id = get('mitarbeiter_id');
+            return "Zeiterfassung " + (mitarbeiter_id ? get('user_login') : "");
         }
     },
     stores: {
@@ -50,6 +56,7 @@ Ext.define('Tualo.timetracker.lazy.models.Panel', {
             type: 'mitarbeiter_store',
             autoLoad: false,
             autoSync: false,
+            remoteFilter: false,
             pageSize: 100000,
             listeners: {
                 beforeload: 'onMitarbeiterBeforeLoad'

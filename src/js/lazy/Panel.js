@@ -1,7 +1,7 @@
 Ext.define('Tualo.timetracker.lazy.Panel', {
     /*** */
     extend: 'Ext.form.Panel',
-    title: 'Zeiterfassung',
+    //title: 'Zeiterfassung',
     alias: 'widget.timetracker',
     requires: [
         'Tualo.timetracker.lazy.picker.Date',
@@ -20,7 +20,8 @@ Ext.define('Tualo.timetracker.lazy.Panel', {
         boxready: 'onBoxReady'
     },
     bind: {
-        disabled: "{disabled}"
+        disabled: "{disabled}",
+        title: "{title}"
     },
     "keyMap": {
         'ctrl+s': {
@@ -97,9 +98,12 @@ Ext.define('Tualo.timetracker.lazy.Panel', {
                 {
                     fieldLabel: "Mitarbeiter",
                     bind: {
-                        value: "{record.mitarbeiter_id}",
-                        disabled: "{!canEdit}",
+                        value: "{mitarbeiter_id}",
+                        disabled: "{disabled}",
                         store: '{mitarbeiter}'
+                    },
+                    listeners: {
+                        change: 'onMitarbeiterChange'
                     },
                     xtype: "combobox_mitarbeiter_id"
                 },
