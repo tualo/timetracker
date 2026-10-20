@@ -428,6 +428,7 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
             failure: function (batch, options) {
                 console.log('Tualo.timetracker.lazy.controller.Panel', 'onSave.failure', batch, options);
                 console.log('sync failed', batch, options);
+                Ext.Msg.alert('Error', 'Failed to save the record.');
             }
         });
     },
