@@ -12,6 +12,7 @@ Ext.define('Tualo.timetracker.lazy.Panel', {
         type: 'vbox',
         align: 'stretch'
     },
+    scrollable: 'y',
     controller: 'timetracker',
     viewModel: {
         type: 'timetracker'
@@ -241,7 +242,8 @@ Ext.define('Tualo.timetracker.lazy.Panel', {
                 store: '{zeiterfassung}',
                 autoLoad: false
             },
-            flex: 1
+            minHeight: 400,
+            // flex: 1
         }
 
     ]

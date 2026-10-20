@@ -33,6 +33,7 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
         let async_fn = async () => {
             console.log('Tualo.timetracker.lazy.controller.Panel', 'onBoxReady.async_fn');
             let res = await me.currentStaffId();
+
             console.log('current staff id', res);
             if (res == 9999999) {
                 Ext.toast({
@@ -293,6 +294,7 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
             let data = await response.json();
 
             console.log('Tualo.timetracker.lazy.controller.Panel', 'currentStaffId', data);
+
             if (data.success) {
                 vm.set('mitarbeiter_id', data.id);
                 vm.set('user_login', data.user_login);
@@ -301,6 +303,7 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
                 me.loadTimePicker();
                 return data.id;
             }
+
         } catch (e) {
             console.error(e);
         }
