@@ -110,6 +110,7 @@ Ext.define('Tualo.timetracker.lazy.Panel', {
                 },
                 {
                     xtype: 'timetracker_datepicker',
+                    startDay: 1,
                     bind: {
                         store: '{kalender}'
                     },
