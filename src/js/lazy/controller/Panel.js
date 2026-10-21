@@ -339,8 +339,10 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
         let record = Ext.create('Tualo.DataSets.model.Zeiterfassung', newData);
         store.add(record);
         grid.setSelection(record);
+        me.onSelect(record);
         console.log('onNew', record, store.count());
         setTimeout(() => {
+            me.onSelect(record);
             me._preventReload = false;
         }, 10);
 
