@@ -90,6 +90,10 @@ Ext.define('Tualo.timetracker.lazy.Panel', {
                 }
 
             },
+
+            "bodyStyle": {
+                "paddingLeft": "48px"
+            },
             "defaults": {
                 "labelAlign": "top",
                 "width": "100%"
