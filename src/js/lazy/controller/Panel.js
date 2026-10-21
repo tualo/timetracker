@@ -326,20 +326,23 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
                 task_end: new Date()
             };
 
-        let fn = () => {
-            me._preventReload = true;
-            console.log('Tualo.timetracker.lazy.controller.Panel', 'onNew.fn');
-            let record = Ext.create('Tualo.DataSets.model.Zeiterfassung', newData);
-            store.add(record);
-            grid.setSelection(record);
-            console.log('onNew', record, store.count());
-            setTimeout(() => {
-                me._preventReload = false;
-            }, 1000);
-        }
+        /*
+    let fn = () => {
+        
+    }
 
-        setTimeout(fn, 10);
+    setTimeout(fn, 10);
+*/
 
+        me._preventReload = true;
+        console.log('Tualo.timetracker.lazy.controller.Panel', 'onNew.fn');
+        let record = Ext.create('Tualo.DataSets.model.Zeiterfassung', newData);
+        store.add(record);
+        grid.setSelection(record);
+        console.log('onNew', record, store.count());
+        setTimeout(() => {
+            me._preventReload = false;
+        }, 10);
 
 
         // vm.set('mitarbeiter_id', await me.currentStaffId());
