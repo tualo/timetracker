@@ -262,7 +262,7 @@ Ext.define('Tualo.timetracker.lazy.Panel', {
                 store: '{zeiterfassung}',
                 autoLoad: false
             },
-            minHeight: 400,
+            minHeight: 200,
             // flex: 1
         }
 
