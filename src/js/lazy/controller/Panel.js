@@ -48,16 +48,17 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
         async_fn();
     },
 
-    onNewShortcut: function (key, event) {
-        console.log('Tualo.timetracker.lazy.controller.Panel', 'onNewShortcut', key, event);
+    // keyMap-Handler werden mit (event, view) aufgerufen
+    onNewShortcut: function (event, view) {
+        console.log('Tualo.timetracker.lazy.controller.Panel', 'onNewShortcut', event, view);
         event.stopEvent();
         if (!this.getView().isDisabled()) {
             this.onNew();
         }
     },
 
-    onSaveShortcut: function (key, event) {
-        console.log('Tualo.timetracker.lazy.controller.Panel', 'onSaveShortcut', key, event);
+    onSaveShortcut: function (event, view) {
+        console.log('Tualo.timetracker.lazy.controller.Panel', 'onSaveShortcut', event, view);
         event.stopEvent();
         if (!this.getView().isDisabled() && this.getViewModel().get('hasRecord')) {
             this.onSave();

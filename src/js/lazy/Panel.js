@@ -31,10 +31,25 @@ Ext.define('Tualo.timetracker.lazy.Panel', {
         'cmd+s': {
             handler: 'onSaveShortcut'
         },
-        'ctrl++': {
+        // '+'-Taste per keyCode binden: ein literales '+' wuerde als charCode
+        // (keypress) geparst und feuert mit Ctrl/Cmd nie.
+        // 187 = Chrome/Edge/Safari, 171 = Firefox, NUM_PLUS = Ziffernblock
+        'ctrl+187': {
             handler: 'onNewShortcut'
         },
-        'cmd++': {
+        'cmd+187': {
+            handler: 'onNewShortcut'
+        },
+        'ctrl+171': {
+            handler: 'onNewShortcut'
+        },
+        'cmd+171': {
+            handler: 'onNewShortcut'
+        },
+        'ctrl+NUM_PLUS': {
+            handler: 'onNewShortcut'
+        },
+        'cmd+NUM_PLUS': {
             handler: 'onNewShortcut'
         },
         esc: {
@@ -64,7 +79,7 @@ Ext.define('Tualo.timetracker.lazy.Panel', {
                 },
                 {
                     iconCls: 'x-fa fa-plus',
-                    tooltip: 'Hinzufuegen (Strg+N)',
+                    tooltip: 'Hinzufuegen (Strg und +)',
                     handler: 'onNew'
                 }
             ]
