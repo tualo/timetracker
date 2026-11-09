@@ -138,7 +138,7 @@ Ext.define('Tualo.timetracker.lazy.Panel', {
                         disabled: "{!canEdit}",
                         store: '{tualo_job}'
                     },
-                    xtype: "combobox_tualo_job_id",
+                    xtype: "linkedcombobox_tualo_job_id",
 
                 },
                 {
