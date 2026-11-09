@@ -415,7 +415,9 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
             grid = view.down('dslist_zeiterfassung'),
             store = vm.getStore('zeiterfassung'),
             record = vm.get('record');
-        view.getForm().getValues()
+        view.getForm().getValues();
+
+        view.setLoading(true);
 
 
 
@@ -430,11 +432,13 @@ Ext.define('Tualo.timetracker.lazy.controller.Panel', {
                 console.log('Tualo.timetracker.lazy.controller.Panel', 'onSave.success', batch, options);
                 console.log('sync successful', batch, options);
                 me.loadTimePicker();
+                view.setLoading(false);
             },
             failure: function (batch, options) {
                 console.log('Tualo.timetracker.lazy.controller.Panel', 'onSave.failure', batch, options);
                 console.log('sync failed', batch, options);
                 Ext.Msg.alert('Error', 'Failed to save the record.');
+                view.setLoading(false);
             }
         });
     },
